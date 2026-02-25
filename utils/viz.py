@@ -11,11 +11,9 @@ def draw_frame(frame, tracks, class_map, colors, stats, line_y, fps, fid):
     font = cv2.FONT_HERSHEY_SIMPLEX
     h, w = frame.shape[:2]
 
-    # Counting line
     cv2.line(frame, (0, line_y), (w, line_y), (0, 255, 255), 2)
     cv2.putText(frame, "Counting Line", (8, line_y - 6), font, 0.4, (0, 255, 255), 1)
 
-    # Bounding boxes + labels
     for trk in tracks:
         x1, y1, x2, y2, tid, cls, conf = trk
         lbl = class_map.get(cls, "?")
@@ -23,8 +21,7 @@ def draw_frame(frame, tracks, class_map, colors, stats, line_y, fps, fid):
         cv2.rectangle(frame, (x1, y1), (x2, y2), col, 2)
         _label(frame, f"{lbl} #{tid}  {conf:.2f}", (x1, y1 - 2), (255, 255, 255), col)
         cv2.circle(frame, ((x1 + x2) // 2, (y1 + y2) // 2), 4, col, -1)
-
-    # Analytics HUD (top-right)
+        
     px = w - 220; py = 10; lh = 22
     n  = len(stats["class_stats"])
     ov = frame.copy()
@@ -39,6 +36,5 @@ def draw_frame(frame, tracks, class_map, colors, stats, line_y, fps, fid):
         row += lh
     cv2.putText(frame, f"Total: {stats['grand_total']}", (px, row), font, 0.4, (255, 255, 255), 1)
 
-    # FPS counter (bottom-left)
     _label(frame, f"FPS:{fps:5.1f}  Frame:{fid:05d}", (8, h - 10), (255, 255, 255), (30, 30, 30))
     return frame
