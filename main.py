@@ -5,14 +5,20 @@ import argparse
 from datetime import datetime
 from pathlib import Path
 from ultralytics import YOLO
-from utils.tracer import SimpleTracker
+from utils.tracker import SimpleTracker      
 from utils.analytics import Analytics
-from utils.viz import draw_frame
+from utils.visualizer import draw_frame      
 
 WAREHOUSE_CLASSES = {
     0:  "Person",
-    7:  "Forklift",
-    28: "Parcel",
+    7:  "Forklift",   
+    24: "Parcel",      
+    28: "Parcel",     
+    39: "Parcel",     
+    56: "Parcel",     
+    63: "Parcel",      
+    67: "Parcel",      
+    73: "Parcel",    
 }
 
 CLASS_COLORS = {
@@ -21,7 +27,7 @@ CLASS_COLORS = {
     "Parcel":   (255, 0, 0),
 }
 
-CONF_THRESHOLD = 0.35
+CONF_THRESHOLD = 0.30  
 IOU_THRESHOLD  = 0.45
 LINE_POSITION  = 0.5  
 
@@ -35,7 +41,7 @@ def run(source, model_path, output, show, save):
 
     cap = cv2.VideoCapture(int(source) if source.isdigit() else source)
     if not cap.isOpened():
-        raise RuntimeError(f"❌ Cannot open video source: {source}")
+        raise RuntimeError(f"Cannot open video source: {source}")
 
     fps    = cap.get(cv2.CAP_PROP_FPS) or 25
     width  = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -85,7 +91,7 @@ def run(source, model_path, output, show, save):
                 frame,
                 conf=CONF_THRESHOLD,
                 iou=IOU_THRESHOLD,
-                classes=list(WAREHOUSE_CLASSES.keys()),
+                classes=list(WAREHOUSE_CLASSES.keys()),  # fix 4: saare IDs pass kiye
                 verbose=False,
             )[0]
 
@@ -132,7 +138,7 @@ def run(source, model_path, output, show, save):
 
             if writer:
                 writer.write(annotated)
-       
+
             cv2.imshow("Warehouse Multi-Object Tracking", annotated)
 
             key = cv2.waitKey(1) & 0xFF
@@ -147,11 +153,11 @@ def run(source, model_path, output, show, save):
         csvf.close()
         cv2.destroyAllWindows()
 
-        print("\n=========== FINAL SUMMARY ===========")
+        print("\n Final Result")
         stats = analytics.get_stats()
         for cls, d in stats["class_stats"].items():
-            print(f"{cls:10s} | Total:{d['total']:4d} | IN:{d['entries']:3d} | OUT:{d['exits']:3d}")
-            print(f"{cls:10s} | Total:{d['total']:4d}")
+            print(f"  {cls:10s} | Total:{d['total']:4d} | IN:{d['entries']:3d} | OUT:{d['exits']:3d}")
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -167,6 +173,6 @@ if __name__ == "__main__":
         source=args.source,
         model_path=args.model,
         output=args.output,
-        show=True,     # 🔥 FORCE SHOW
+        show=True,
         save=args.save
     )
