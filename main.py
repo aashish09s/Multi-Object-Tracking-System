@@ -4,9 +4,7 @@ import time
 import argparse
 from datetime import datetime
 from pathlib import Path
-
 from ultralytics import YOLO
-
 from utils.tracer import SimpleTracker
 from utils.analytics import Analytics
 from utils.viz import draw_frame
@@ -134,8 +132,7 @@ def run(source, model_path, output, show, save):
 
             if writer:
                 writer.write(annotated)
-                
-            # 🔥 ALWAYS SHOW WINDOW (FIX)
+       
             cv2.imshow("Warehouse Multi-Object Tracking", annotated)
 
             key = cv2.waitKey(1) & 0xFF
@@ -155,9 +152,6 @@ def run(source, model_path, output, show, save):
         for cls, d in stats["class_stats"].items():
             print(f"{cls:10s} | Total:{d['total']:4d} | IN:{d['entries']:3d} | OUT:{d['exits']:3d}")
             print(f"{cls:10s} | Total:{d['total']:4d}")
-
-
-# ================= ENTRY =================
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
